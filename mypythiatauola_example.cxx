@@ -35,7 +35,7 @@ using namespace std;
 using namespace Pythia8; 
 using namespace Tauolapp;
 
-int NumberOfEvents = 50000; 
+int NumberOfEvents = 10000; 
 int EventsToCheck=10;
 
 // elementary test of HepMC typically executed before
@@ -197,8 +197,13 @@ int main(int argc,char **argv){
   Pythia pythia;
   Event& event = pythia.event;
 
+  TFile *file = new TFile("results.root","RECREATE");
 
+  TH1F *pi_plus= new TH1F("pi_plus","#pi^{+}",50,-1,1);
+  TH1F *pi_minus= new TH1F("pi_minus","#pi^{-} ",50,-1,1);
 
+  TH1F *mu_plus= new TH1F("mu_plus","#mu^{+}",50,1,1);
+  TH1F *mu_minus= new TH1F("mu_minus","#mu^{-}",50,-1,1);
 
   // Pythia8 HepMC interface depends on Pythia8 version
 #ifdef PYTHIA8180_OR_LATER
@@ -402,9 +407,29 @@ int main(int argc,char **argv){
     
     //------- write your analysis code here 
 
+    if(JAK1==2)
+    {
+      vector<TLorentzVector> tauandprod;
+      tauandprod.push_back(TLorentzVector(FirstTau->momentum().px(), FirstTau->momentum().py(), FirstTau->momentum().pz(), FirstTau->momentum().e()));
+      for(std::vector<HepMC::GenParticle>::const_iterator a = FirstTauProducts.begin(); a!=FirstTauProducts.end(); ++a){
+	if(abs(a->pdg_id())==13){tauandprod.push_back(TLorentzVector(a->momentum().px(), a->momentum().py(), a->momentum().pz(), a->momentum().e()  ) );} }
+         
+      mu_plus->Fill( tauandprod.at(1).E()/tauandprod.at(0).E(),HelWeightPlus);
+      mu_minus->Fill( tauandprod.at(1).E()/tauandprod.at(0).E(),HelWeightMinus);
+    }
 
 
+    if(JAK1==3)
+    {
+      vector<TLorentzVector> tauandprod;
+      tauandprod.push_back(TLorentzVector(FirstTau->momentum().px(), FirstTau->momentum().py(), FirstTau->momentum().pz(), FirstTau->momentum().e()));
+      for(std::vector<HepMC::GenParticle>::const_iterator a = FirstTauProducts.begin(); a!=FirstTauProducts.end(); ++a){
+	if(abs(a->pdg_id())==211){tauandprod.push_back(TLorentzVector(a->momentum().px(), a->momentum().py(), a->momentum().pz(), a->momentum().e()  ) );} }
+     
 
+      pi_plus->Fill(2*tauandprod.at(1).E()/tauandprod.at(0).E() - 1,HelWeightPlus);
+      pi_minus->Fill(2*tauandprod.at(1).E()/tauandprod.at(0).E() - 1,HelWeightMinus);
+    }
 
   
 
@@ -422,7 +447,8 @@ int main(int argc,char **argv){
     delete HepMCEvt;  
   }
 
-
+  file->Write();
+  file->Close();
 
   pythia.statistics();
   MC_Finalize();
