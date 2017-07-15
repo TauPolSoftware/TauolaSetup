@@ -24,7 +24,7 @@ if($ARGV[0] eq "--help" || $ARGV[0] eq ""){
     printf("\n\nAfter this step is completed prcoceed further and ");
     printf("\nchoose from the following options:\n");
     printf("\n./todo.pl --help                                             Prints this message");
-    printf("\n./todo.pl --setup                                            Setup Install file  ");
+    printf("\n./todo.pl --setup   <tauoladir>                              Setup Install file  ");
     printf("\n./todo.pl --tauoladefault  <tauoladir>                       Install default tauola ");
     printf("\n  ========================================================================================\n");
     exit(0);  
